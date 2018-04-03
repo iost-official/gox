@@ -15,9 +15,11 @@ import (
 )
 
 type OutputTemplateData struct {
-	Dir  string
-	OS   string
-	Arch string
+	Dir       string
+	OS        string
+	OSUname   string
+	Arch      string
+	ArchUname string
 }
 
 type CompileOpts struct {
@@ -26,7 +28,6 @@ type CompileOpts struct {
 	OutputTpl   string
 	Ldflags     string
 	Gcflags     string
-	Asmflags    string
 	Tags        string
 	Cgo         bool
 	Rebuild     bool
@@ -59,9 +60,11 @@ func GoCrossCompile(opts *CompileOpts) error {
 		return err
 	}
 	tplData := OutputTemplateData{
-		Dir:  filepath.Base(opts.PackagePath),
-		OS:   opts.Platform.OS,
-		Arch: opts.Platform.Arch,
+		Dir:       filepath.Base(opts.PackagePath),
+		OS:        opts.Platform.OS,
+		OSUname:   opts.Platform.OSUname(),
+		Arch:      opts.Platform.Arch,
+		ArchUname: opts.Platform.ArchUname(),
 	}
 	if err := tpl.Execute(&outputPath, &tplData); err != nil {
 		return err
@@ -110,7 +113,6 @@ func GoCrossCompile(opts *CompileOpts) error {
 	args = append(args,
 		"-gcflags", opts.Gcflags,
 		"-ldflags", opts.Ldflags,
-		"-asmflags", opts.Asmflags,
 		"-tags", opts.Tags,
 		"-o", outputPathReal,
 		opts.PackagePath)
@@ -218,12 +220,10 @@ func execGo(GoCmd string, env []string, dir string, args ...string) (string, err
 }
 
 const versionSource = `package main
-
 import (
 	"fmt"
 	"runtime"
 )
-
 func main() {
 	fmt.Print(runtime.Version())
 }`
