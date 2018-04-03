@@ -92,7 +92,10 @@ var (
 	}...)
 
 	// no new platforms in 1.9
-	Platforms_1_9 = Platforms_1_8
+	Platforms_1_9 = append(Platforms_1_6, []Platform{
+ 		{"linux", "mips", false},
+ 		{"linux", "mipsle", false},
+ 	}...)
 
 	// no new platforms in 1.10
 	Platforms_1_10 = Platforms_1_9
@@ -145,5 +148,5 @@ func SupportedPlatforms(v string) []Platform {
 	}
 
 	// Assume latest
-	return Platforms_1_9
+	return Platforms_1_10
 }
